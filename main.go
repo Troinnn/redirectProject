@@ -45,7 +45,7 @@ func main() {
 	// 3. Создать ресурс (handler) для нашего сервера
 	linksResource := LinksResource{
 		col:        linksCol,
-		linksCache: *newLocalCache(1 * time.Second),
+		linksCache: newLocalCache(5 * time.Second),
 	}
 	//
 

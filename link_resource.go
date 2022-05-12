@@ -14,7 +14,7 @@ import (
 // LinksResource - структура, которая даст нам возможность создать эндпоинты, и возможность взаимодействовать с коллекцией из базы данных.
 type LinksResource struct {
 	col        *mongo.Collection
-	linksCache LocalCache
+	linksCache Cache
 }
 
 // Routers - в этой функции создается список эндпоинтов.
@@ -204,6 +204,7 @@ func (lr LinksResource) AdminDeleteRedirect(w http.ResponseWriter, r *http.Reque
 func (lr LinksResource) UserRedirect(w http.ResponseWriter, r *http.Request) {
 	// localhost:8080/redirect?link=fuck - Query параметр
 	queryLink := r.URL.Query().Get("link")
+
 	if _, ok := lr.linksCache.Get(queryLink); ok {
 		render.Status(r, http.StatusOK)
 		render.JSON(w, r, nil)

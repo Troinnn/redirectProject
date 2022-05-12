@@ -7,15 +7,22 @@ import (
 
 type CachedLink struct {
 	Link
-	expireAtTimestamp int64
+	expireAtTimestamp int64 // время протухания кэша
 }
 
+//канал структуры кеш
 type LocalCache struct {
-	stop chan struct{}
+	stop chan struct{} // канал структуры исп. для остановки
 
 	wg    sync.WaitGroup
 	mu    sync.RWMutex
-	links map[string]CachedLink
+	links map[string]CachedLink //наш кэш
+}
+
+type Cache interface {
+	Add(key string, value string)
+	Get(key string) (string, bool)
+	Len() int
 }
 
 func newLocalCache(cleanupInterval time.Duration) *LocalCache {
@@ -43,9 +50,9 @@ func (lc *LocalCache) cleanupLoop(interval time.Duration) {
 			return
 		case <-t.C:
 			lc.mu.Lock()
-			for uid, cu := range lc.links {
-				if cu.expireAtTimestamp <= time.Now().UTC().Unix() {
-					delete(lc.links, uid)
+			for k, v := range lc.links {
+				if v.expireAtTimestamp <= time.Now().UTC().Unix() {
+					delete(lc.links, k)
 				}
 			}
 			lc.mu.Unlock()
@@ -77,4 +84,8 @@ func (lc *LocalCache) Get(key string) (string, bool) {
 	}
 
 	return cu.Link.ActiveLink, true
+}
+
+func (lc *LocalCache) Len() int {
+	return len(lc.links)
 }
