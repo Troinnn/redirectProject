@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"net/http"
 	"os"
+	"time"
 )
 
 /*
@@ -43,7 +44,8 @@ func main() {
 
 	// 3. Создать ресурс (handler) для нашего сервера
 	linksResource := LinksResource{
-		col: linksCol,
+		col:        linksCol,
+		linksCache: *newLocalCache(1 * time.Second),
 	}
 	//
 
